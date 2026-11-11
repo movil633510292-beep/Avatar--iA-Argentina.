@@ -1,0 +1,133 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mi Avatar IA Argentina</title>
+<style>
+body {
+  margin:0;
+  background:#f7e9ed;
+  font-family:Arial,sans-serif;
+  text-align:center;
+  color:#382d35;
+}
+main {
+  max-width:430px;
+  margin:auto;
+  padding:25px 18px;
+}
+.avatar {
+  width:180px;
+  height:180px;
+  margin:20px auto;
+  border-radius:50%;
+  background:#f3c8a5;
+  border:8px solid white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:105px;
+  box-shadow:0 4px 18px #c9aab5;
+}
+h1 {font-size:25px}
+p {color:#66545e}
+button {
+  width:100%;
+  padding:15px;
+  margin:8px 0;
+  border:0;
+  border-radius:12px;
+  background:#a83d70;
+  color:white;
+  font-size:16px;
+}
+button:active {opacity:.7}
+textarea {
+  width:95%;
+  min-height:100px;
+  border:1px solid #c9aab5;
+  border-radius:12px;
+  padding:10px;
+  font-size:16px;
+  margin:10px 0;
+}
+</style>
+</head>
+<body>
+<main>
+<h1>Mi Avatar IA Argentina</h1>
+<div class="avatar">👱‍♀️</div>
+<h2>¡Hola! ¿Cómo estás?</h2>
+<p>Soy tu asistente virtual. Hablame y te ayudaré.</p>
+
+<button onclick="escuchar()">🎤 Hablar con el avatar</button>
+
+<textarea id="pregunta" placeholder="Tu pregunta aparecerá aquí..."></textarea>
+
+<button onclick="copiar()">📋 Copiar pregunta</button>
+<button onclick="abrirChat()">🤖 Abrir ChatGPT</button>
+
+<h3>Respuesta de ChatGPT</h3>
+<textarea id="respuesta" placeholder="Pega aquí la respuesta de ChatGPT..."></textarea>
+
+<button onclick="hablar()">🔊 Escuchar respuesta</button>
+<button onclick="speechSynthesis.cancel()">⏹ Detener voz</button>
+
+<p id="estado">Lista para conversar</p>
+</main>
+
+<script>
+function escuchar() {
+ const SR = window.SpeechRecognition ||
+            window.webkitSpeechRecognition;
+ if (!SR) {
+  alert("Usa Google Chrome para activar el reconocimiento de voz.");
+  return;
+ }
+ const r = new SR();
+ r.lang = "es-AR";
+ r.onstart = () =>
+  document.getElementById("estado").textContent="Te estoy escuchando...";
+ r.onresult = e => {
+  document.getElementById("pregunta").value =
+   e.results[0][0].transcript;
+  document.getElementById("estado").textContent="Pregunta reconocida";
+ };
+ r.onerror = () =>
+  document.getElementById("estado").textContent="No se pudo reconocer la voz";
+ r.start();
+}
+
+async function copiar() {
+ const q = document.getElementById("pregunta").value;
+ if (!q.trim()) return alert("Primero haz tu pregunta.");
+ try {
+  await navigator.clipboard.writeText(q);
+  alert("Pregunta copiada. Ahora abre ChatGPT y pégala.");
+ } catch(e) {
+  alert("Selecciona y copia la pregunta manualmente.");
+ }
+}
+
+function abrirChat() {
+ window.open("https://chatgpt.com/", "_blank");
+}
+
+function hablar() {
+ const t = document.getElementById("respuesta").value;
+ if (!t.trim()) return alert("Pega primero una respuesta.");
+ speechSynthesis.cancel();
+ const u = new SpeechSynthesisUtterance(t);
+ u.lang = "es-AR";
+ u.rate = 0.95;
+ const voces = speechSynthesis.getVoices();
+ const argentina = voces.find(v =>
+  v.lang.toLowerCase() === "es-ar");
+ if (argentina) u.voice = argentina;
+ speechSynthesis.speak(u);
+}
+</script>
+</body>
+</html>
